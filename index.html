@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#090a0f">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Play two YouTube videos at once — audiobook plus background music. Free, installable, works on phone and desktop.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Dual Tube">
+  <title>Dual Tube — two YouTube videos at once</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,520;9..144,650&family=Outfit:wght@350;430;550;650&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090a0f;
+      --ink: #f4efe6;
+      --muted: #9b968c;
+      --line: rgba(255, 255, 255, 0.09);
+      --glass: rgba(16, 18, 26, 0.7);
+      --amber: #f0a14a;
+      --amber-soft: rgba(240, 161, 74, 0.16);
+      --teal: #5ee0c5;
+      --teal-soft: rgba(94, 224, 197, 0.14);
+      --danger: #ff8a8a;
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+      --radius: 24px;
+      --touch: 48px;
+      --pad: clamp(16px, 3vw, 28px);
+      --safe-b: env(safe-area-inset-bottom, 0px);
+      --safe-t: env(safe-area-inset-top, 0px);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; }
+    body {
+      font-family: Outfit, ui-sans-serif, system-ui, sans-serif;
+      background:
+        radial-gradient(1100px 620px at -8% -12%, rgba(240, 161, 74, 0.18), transparent 55%),
+        radial-gradient(900px 520px at 108% -8%, rgba(94, 224, 197, 0.13), transparent 50%),
+        radial-gradient(800px 420px at 50% 115%, rgba(120, 140, 255, 0.08), transparent 55%),
+        var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+      -webkit-tap-highlight-color: transparent;
+      padding-bottom: calc(96px + var(--safe-b));
+    }
+    button, input, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+
+    .wrap {
+      width: min(1160px, 100%);
+      margin: 0 auto;
+      padding: calc(20px + var(--safe-t)) var(--pad) 24px;
+    }
+
+    header.top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .brand { display: flex; gap: 14px; align-items: center; min-width: 0; }
+    .logo {
+      width: 48px; height: 48px; flex: none;
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+    .wordmark {
+      font-family: Fraunces, Georgia, serif;
+      font-weight: 650;
+      font-size: clamp(1.6rem, 4vw, 2.15rem);
+      letter-spacing: -0.03em;
+      line-height: 1.05;
+      margin: 0;
+    }
+    .tag {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chip {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      color: var(--ink);
+      border-radius: 999px;
+      min-height: 42px;
+      padding: 0 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background .2s ease, border-color .2s ease, transform .15s ease;
+    }
+    .chip:hover { background: rgba(255,255,255,0.07); }
+    .chip:active { transform: scale(0.98); }
+    .chip[aria-pressed="true"] {
+      background: rgba(255,255,255,0.1);
+      border-color: rgba(255,255,255,0.22);
+    }
+    .chip .dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--muted);
+    }
+    .chip[aria-pressed="true"] .dot { background: var(--teal); box-shadow: 0 0 0 3px rgba(94,224,197,.2); }
+
+    .decks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 820px) {
+      .decks { grid-template-columns: 1fr; }
+      .stage { max-height: 130px; }
+      .deck { gap: 10px; padding: 14px 14px 12px; }
+      .play-btn { width: 56px; height: 56px; }
+    }
+
+    .deck {
+      background: var(--glass);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      backdrop-filter: blur(22px) saturate(1.25);
+      -webkit-backdrop-filter: blur(22px) saturate(1.25);
+      box-shadow: var(--shadow);
+      padding: 18px 18px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+    .deck.book { box-shadow: 0 0 0 1px rgba(240,161,74,.14), var(--shadow); }
+    .deck.music { box-shadow: 0 0 0 1px rgba(94,224,197,.12), var(--shadow); }
+
+    .deck-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .deck-label {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.35rem;
+      font-weight: 650;
+      letter-spacing: -0.02em;
+      margin: 0;
+    }
+    .deck.book .deck-label { color: var(--amber); }
+    .deck.music .deck-label { color: var(--teal); }
+    .now-playing {
+      font-size: 0.8rem;
+      color: var(--muted);
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 55%;
+      min-height: 1.2em;
+    }
+
+    .url-row { display: flex; gap: 8px; }
+    .url-row input {
+      flex: 1;
+      min-width: 0;
+      min-height: var(--touch);
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      background: rgba(0,0,0,0.35);
+      padding: 0 14px;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .url-row input:focus {
+      border-color: rgba(255,255,255,0.28);
+      box-shadow: 0 0 0 3px rgba(255,255,255,0.06);
+    }
+    .deck.book .url-row input:focus { box-shadow: 0 0 0 3px var(--amber-soft); }
+    .deck.music .url-row input:focus { box-shadow: 0 0 0 3px var(--teal-soft); }
+    .btn {
+      appearance: none;
+      border: 0;
+      border-radius: 14px;
+      min-height: var(--touch);
+      padding: 0 16px;
+      font-weight: 550;
+      background: rgba(255,255,255,0.08);
+      transition: background .2s ease, transform .15s ease, opacity .2s ease;
+    }
+    .btn:hover { background: rgba(255,255,255,0.12); }
+    .btn:active { transform: scale(0.98); }
+    .btn:disabled { opacity: 0.45; cursor: default; }
+    .btn.primary { background: var(--ink); color: #141414; }
+    .btn.primary:hover { filter: brightness(1.05); }
+    .deck.book .btn.load { background: var(--amber); color: #1a1208; }
+    .deck.music .btn.load { background: var(--teal); color: #08211b; }
+
+    .stage-wrap { position: relative; }
+    .stage {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      border-radius: 16px;
+      overflow: hidden;
+      background: #000;
+      transition: aspect-ratio .35s ease, height .35s ease, min-height .35s ease, opacity .3s ease, margin .3s ease;
+    }
+    .stage .yt-mount, .stage iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+    .stage-placeholder {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      font-size: 0.92rem;
+      text-align: center;
+      padding: 16px;
+      pointer-events: none;
+      background: #0b0c11;
+      z-index: 1;
+    }
+    /* Compact mode: shrink, never display:none — YouTube may halt hidden iframes */
+    html.compact .stage {
+      aspect-ratio: auto;
+      height: 4px;
+      max-height: 4px;
+      min-height: 4px;
+      opacity: 0.35;
+      margin: 0;
+      pointer-events: none;
+      border-radius: 4px;
+    }
+    html.compact .stage-placeholder { display: none; }
+
+    .error {
+      color: var(--danger);
+      font-size: 0.85rem;
+      min-height: 1.2em;
+    }
+
+    .transport {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .play-btn {
+      width: 64px;
+      height: 64px;
+      flex: none;
+      border: 0;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      transition: transform .15s ease, filter .2s ease;
+    }
+    .play-btn:active { transform: scale(0.96); }
+    .deck.book .play-btn { background: var(--amber); color: #1a1208; }
+    .deck.music .play-btn { background: var(--teal); color: #08211b; }
+    .play-btn svg { width: 28px; height: 28px; }
+    .skip-row, .extra-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      align-items: center;
+      flex: 1;
+    }
+    .icon-btn {
+      appearance: none;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      border-radius: 12px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0 10px;
+      font-weight: 550;
+      font-variant-numeric: tabular-nums;
+      transition: background .2s ease, border-color .2s ease;
+    }
+    .icon-btn:hover { background: rgba(255,255,255,0.08); }
+    .icon-btn[aria-pressed="true"] {
+      background: var(--teal-soft);
+      border-color: rgba(94, 224, 197, 0.45);
+      color: var(--teal);
+    }
+
+    .progress-block { display: grid; gap: 6px; }
+    .times {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+    }
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      background: transparent;
+      margin: 0;
+      height: 28px;
+    }
+    input[type="range"]:focus { outline: none; }
+    input[type="range"]::-webkit-slider-runnable-track {
+      height: 8px;
+      border-radius: 999px;
+      background: linear-gradient(to right, var(--fill, #fff) var(--pct, 0%), rgba(255,255,255,.12) var(--pct, 0%));
+    }
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 22px;
+      height: 22px;
+      margin-top: -7px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 2px 10px rgba(0,0,0,.45);
+      border: 0;
+    }
+    input[type="range"]::-moz-range-track {
+      height: 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.12);
+    }
+    input[type="range"]::-moz-range-progress {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--fill, #fff);
+    }
+    input[type="range"]::-moz-range-thumb {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #fff;
+      border: 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,.45);
+    }
+    .deck.book input[type="range"] { --fill: var(--amber); }
+    .deck.music input[type="range"] { --fill: var(--teal); }
+
+    .volume-block {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 12px 14px 10px;
+      display: grid;
+      gap: 4px;
+    }
+    .volume-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+    .volume-head strong {
+      font-weight: 550;
+      font-size: 0.92rem;
+      letter-spacing: 0.01em;
+    }
+    .vol-pct {
+      font-variant-numeric: tabular-nums;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+    .volume-row { display: flex; align-items: center; gap: 8px; }
+    .volume-row input[type="range"] { height: 36px; flex: 1; }
+    .volume-row input[type="range"]::-webkit-slider-runnable-track { height: 14px; }
+    .volume-row input[type="range"]::-webkit-slider-thumb {
+      width: 28px; height: 28px; margin-top: -7px;
+    }
+    .volume-row input[type="range"]::-moz-range-track,
+    .volume-row input[type="range"]::-moz-range-progress { height: 14px; }
+    .volume-row input[type="range"]::-moz-range-thumb { width: 28px; height: 28px; }
+    .mute-btn { min-width: 48px; }
+
+    .speed-select, .extra-row select {
+      min-height: 44px;
+      border-radius: 12px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.04);
+      padding: 0 12px;
+    }
+
+    .master {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 20;
+      padding: 10px var(--pad) calc(12px + var(--safe-b));
+      background: linear-gradient(to top, rgba(9,10,15,0.96), rgba(9,10,15,0.88) 70%, rgba(9,10,15,0));
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+    }
+    .master-inner {
+      width: min(1160px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px 22px;
+      align-items: center;
+      background: rgba(16, 18, 26, 0.86);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 12px 14px;
+      box-shadow: 0 -12px 40px rgba(0,0,0,.35);
+    }
+    .master-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+    .master-btns .btn { min-width: 120px; }
+    .btn.both-play { background: var(--ink); color: #141414; }
+    .balance { display: grid; gap: 4px; }
+    .balance-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .balance input[type="range"] { --fill: #cfc8bb; height: 36px; }
+    .balance input[type="range"]::-webkit-slider-runnable-track { height: 10px; }
+    .balance input[type="range"]::-webkit-slider-thumb { width: 26px; height: 26px; margin-top: -8px; }
+
+    @media (max-width: 700px) {
+      .master { padding: 6px 10px calc(8px + var(--safe-b)); }
+      .master-inner {
+        grid-template-columns: auto 1fr;
+        gap: 8px 10px;
+        padding: 8px 10px;
+        border-radius: 16px;
+      }
+      .master-btns { flex-wrap: nowrap; }
+      .master-btns .btn { min-width: 0; padding: 0 10px; min-height: 42px; font-size: 0.88rem; }
+      .balance-labels { font-size: 0.68rem; }
+      .balance input[type="range"] { height: 28px; }
+    }
+
+    .help {
+      margin-top: 28px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.03);
+      overflow: hidden;
+    }
+    .help summary {
+      cursor: pointer;
+      list-style: none;
+      padding: 16px 18px;
+      font-weight: 550;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .help summary::-webkit-details-marker { display: none; }
+    .help summary::after { content: "＋"; color: var(--muted); font-weight: 400; }
+    .help[open] summary::after { content: "–"; }
+    .help-body {
+      padding: 0 18px 18px;
+      color: var(--muted);
+      font-size: 0.92rem;
+      display: grid;
+      gap: 10px;
+    }
+    .help-body strong { color: var(--ink); font-weight: 550; }
+    .help-body ul { margin: 0; padding-left: 1.15em; display: grid; gap: 8px; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(108px + var(--safe-b));
+      transform: translateX(-50%) translateY(12px);
+      background: rgba(20, 22, 30, 0.95);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      padding: 10px 16px;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      z-index: 30;
+      max-width: min(90vw, 420px);
+      text-align: center;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="top">
+      <div class="brand">
+        <img class="logo" src="./icon.svg" width="48" height="48" alt="">
+        <div>
+          <h1 class="wordmark">Dual Tube</h1>
+          <p class="tag">Audiobook in one deck, music in the other.</p>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="chip" id="compactBtn" type="button" aria-pressed="false" title="Hide the video pictures, keep audio playing">
+          <span class="dot"></span> Compact
+        </button>
+        <button class="chip" id="wakeBtn" type="button" aria-pressed="false" title="Request a screen wake lock so playback is less likely to pause">
+          <span class="dot"></span> Keep screen on
+        </button>
+        <button class="chip" type="button" id="helpJump">Help</button>
+      </div>
+    </header>
+
+    <main class="decks">
+      <section class="deck book" data-deck="book" aria-labelledby="book-title">
+        <div class="deck-head">
+          <h2 class="deck-label" id="book-title">Audiobook</h2>
+          <div class="now-playing" id="book-title-text"></div>
+        </div>
+        <form class="url-row" data-load="book" action="#">
+          <input id="book-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a YouTube link or ID" aria-label="Audiobook YouTube URL">
+          <button class="btn load" type="submit">Load</button>
+        </form>
+        <div class="stage-wrap">
+          <div class="stage" id="book-stage">
+            <div id="book-player" class="yt-mount"></div>
+            <div class="stage-placeholder" id="book-ph">Load an audiobook, lecture, or long video</div>
+          </div>
+        </div>
+        <div class="error" id="book-error" role="status"></div>
+        <div class="transport">
+          <button class="play-btn" id="book-play" type="button" aria-label="Play audiobook">
+            <svg id="book-play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="skip-row">
+            <button class="icon-btn" type="button" data-skip="book,-30" aria-label="Back 30 seconds">−30</button>
+            <button class="icon-btn" type="button" data-skip="book,-15" aria-label="Back 15 seconds">−15</button>
+            <button class="icon-btn" type="button" data-skip="book,15" aria-label="Forward 15 seconds">+15</button>
+            <button class="icon-btn" type="button" data-skip="book,30" aria-label="Forward 30 seconds">+30</button>
+            <label class="sr-only" for="book-speed" style="position:absolute;left:-9999px">Speed</label>
+            <select class="speed-select" id="book-speed" aria-label="Audiobook playback speed">
+              <option value="0.75">0.75×</option>
+              <option value="1" selected>1×</option>
+              <option value="1.25">1.25×</option>
+              <option value="1.5">1.5×</option>
+              <option value="1.75">1.75×</option>
+              <option value="2">2×</option>
+            </select>
+          </div>
+        </div>
+        <div class="progress-block">
+          <input id="book-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Audiobook position">
+          <div class="times"><span id="book-cur">0:00</span><span id="book-dur">0:00</span></div>
+        </div>
+        <div class="volume-block">
+          <div class="volume-head"><strong>Volume</strong><span class="vol-pct" id="book-vol-pct">100%</span></div>
+          <div class="volume-row">
+            <input id="book-vol" type="range" min="0" max="100" value="100" aria-label="Audiobook volume">
+            <button class="icon-btn mute-btn" id="book-mute" type="button" aria-pressed="false" aria-label="Mute audiobook">Mute</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="deck music" data-deck="music" aria-labelledby="music-title">
+        <div class="deck-head">
+          <h2 class="deck-label" id="music-title">Music</h2>
+          <div class="now-playing" id="music-title-text"></div>
+        </div>
+        <form class="url-row" data-load="music" action="#">
+          <input id="music-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a YouTube or YouTube Music link" aria-label="Music YouTube URL">
+          <button class="btn load" type="submit">Load</button>
+        </form>
+        <div class="stage-wrap">
+          <div class="stage" id="music-stage">
+            <div id="music-player" class="yt-mount"></div>
+            <div class="stage-placeholder" id="music-ph">Load a mix, album, or playlist</div>
+          </div>
+        </div>
+        <div class="error" id="music-error" role="status"></div>
+        <div class="transport">
+          <button class="play-btn" id="music-play" type="button" aria-label="Play music">
+            <svg id="music-play-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <div class="extra-row">
+            <button class="icon-btn" id="music-loop" type="button" aria-pressed="false" aria-label="Loop music">Loop</button>
+          </div>
+        </div>
+        <div class="progress-block">
+          <input id="music-seek" type="range" min="0" max="1000" value="0" step="1" aria-label="Music position">
+          <div class="times"><span id="music-cur">0:00</span><span id="music-dur">0:00</span></div>
+        </div>
+        <div class="volume-block">
+          <div class="volume-head"><strong>Volume</strong><span class="vol-pct" id="music-vol-pct">40%</span></div>
+          <div class="volume-row">
+            <input id="music-vol" type="range" min="0" max="100" value="40" aria-label="Music volume">
+            <button class="icon-btn mute-btn" id="music-mute" type="button" aria-pressed="false" aria-label="Mute music">Mute</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <details class="help" id="help">
+      <summary>How it works &amp; phone limits</summary>
+      <div class="help-body">
+        <p>Dual Tube is a free page that uses the official YouTube player. Nothing is sold, and nothing is uploaded to a server of ours — your links, volumes, and audiobook position stay in this browser.</p>
+        <ul>
+          <li><strong>Desktop and Android Chrome:</strong> both decks can play at once, and each volume slider is honored by the player.</li>
+          <li><strong>iPhone and iPad (Safari, and many in-app browsers):</strong> the system typically allows only one unmuted video at a time, and it usually ignores per-player volume. Use the device volume, and mute the deck you don’t need. The sliders are still here; they just may not take effect.</li>
+          <li><strong>Phone calls, switching apps, and locking the screen:</strong> phones pause all browser audio during a call, and they usually pause it when the screen locks or you leave the app. That is an OS / browser limit. Dual Tube cannot reliably keep YouTube playing with the screen off or through a call. It does remember that you were playing and will try to resume both decks when you come back (call ends, screen on, app in front again).</li>
+          <li><strong>Best chance on mobile:</strong> turn on <em>Keep screen on</em>, leave Dual Tube visible, or add it to your home screen (Install / Add to Home Screen). Lock-screen and headset controls are requested through the Media Session API when the browser allows them.</li>
+          <li>Paste a normal YouTube or YouTube Music link, a <em>youtu.be</em> short link, a Short, a playlist (<em>list=</em>), or just an 11-character video ID.</li>
+          <li>Compact mode shrinks the pictures so you can focus on audio. The players stay on the page (they are not hidden with <code>display: none</code>), because YouTube may stop a fully hidden player.</li>
+        </ul>
+      </div>
+    </details>
+  </div>
+
+  <div class="master" role="region" aria-label="Master controls">
+    <div class="master-inner">
+      <div class="master-btns">
+        <button class="btn both-play" id="playBoth" type="button">Play both</button>
+        <button class="btn" id="pauseBoth" type="button">Pause both</button>
+      </div>
+      <div class="balance">
+        <div class="balance-labels"><span>Audiobook</span><span>Balance</span><span>Music</span></div>
+        <input id="balance" type="range" min="-100" max="100" value="0" aria-label="Balance between audiobook and music">
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script src="./yt-parse.js"></script>
+  <script>
+    (function () {
+      "use strict";
+
+      var STORAGE_KEY = "dual-tube-state-v1";
+      var ICONS = {
+        play: '<path d="M8 5v14l11-7z"/>',
+        pause: '<path d="M7 5h3v14H7zm7 0h3v14h-3z"/>'
+      };
+
+      var state = {
+        book: { url: "", volume: 100, muted: false, rate: 1, position: 0, videoId: null, playlistId: null },
+        music: { url: "", volume: 40, muted: false, loop: false, position: 0, videoId: null, playlistId: null },
+        balance: 0,
+        compact: false,
+        keepAwake: false
+      };
+
+      var players = { book: null, music: null };
+      var ready = { book: false, music: false };
+      var intendedPlay = { book: false, music: false };
+      var userGesture = false;
+      var scrubbing = { book: false, music: false };
+      var wakeLock = null;
+      var persistTimer = null;
+      var toastTimer = null;
+      var lastResumeAt = 0;
+
+      function $(id) { return document.getElementById(id); }
+
+      function formatTime(sec) {
+        if (!isFinite(sec) || sec < 0) return "0:00";
+        sec = Math.floor(sec);
+        var h = Math.floor(sec / 3600);
+        var m = Math.floor((sec % 3600) / 60);
+        var s = sec % 60;
+        if (h > 0) return h + ":" + String(m).padStart(2, "0") + ":" + String(s).padStart(2, "0");
+        return m + ":" + String(s).padStart(2, "0");
+      }
+
+      function toast(msg) {
+        var el = $("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { el.classList.remove("show"); }, 3200);
+      }
+
+      function loadState() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          var saved = JSON.parse(raw);
+          if (saved.book) Object.assign(state.book, saved.book);
+          if (saved.music) Object.assign(state.music, saved.music);
+          if (typeof saved.balance === "number") state.balance = saved.balance;
+          if (typeof saved.compact === "boolean") state.compact = saved.compact;
+          if (typeof saved.keepAwake === "boolean") state.keepAwake = saved.keepAwake;
+        } catch (e) {}
+      }
+
+      function persist() {
+        try {
+          ["book", "music"].forEach(function (id) {
+            var p = players[id];
+            if (p && typeof p.getCurrentTime === "function") {
+              try {
+                var t = p.getCurrentTime();
+                if (isFinite(t)) state[id].position = t;
+              } catch (e) {}
+            }
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            book: state.book,
+            music: state.music,
+            balance: state.balance,
+            compact: state.compact,
+            keepAwake: state.keepAwake
+          }));
+        } catch (e) {}
+      }
+
+      function schedulePersist() {
+        clearTimeout(persistTimer);
+        persistTimer = setTimeout(persist, 400);
+      }
+
+      function setSeekFill(id) {
+        var el = $(id + "-seek");
+        var max = Number(el.max) || 1000;
+        var pct = max ? (Number(el.value) / max) * 100 : 0;
+        el.style.setProperty("--pct", pct + "%");
+      }
+
+      function setVolFill(id) {
+        var el = $(id + "-vol");
+        el.style.setProperty("--pct", el.value + "%");
+        $(id + "-vol-pct").textContent = el.value + "%";
+      }
+
+      function effectiveVolume(id) {
+        var vol = state[id].volume;
+        var b = state.balance / 100; // -1 book ... +1 music
+        var factor = 1;
+        if (id === "book") factor = b <= 0 ? 1 : 1 - b;
+        else factor = b >= 0 ? 1 : 1 + b;
+        return Math.round(Math.max(0, Math.min(100, vol * factor)));
+      }
+
+      function applyVolumes() {
+        ["book", "music"].forEach(function (id) {
+          var p = players[id];
+          if (!p || !ready[id] || typeof p.setVolume !== "function") return;
+          try {
+            p.setVolume(effectiveVolume(id));
+            if (state[id].muted) p.mute();
+            else p.unMute();
+          } catch (e) {}
+        });
+      }
+
+      function markGesture() {
+        userGesture = true;
+        setTimeout(function () { userGesture = false; }, 600);
+      }
+
+      function isPlayingState(s) {
+        return s === 1 || s === 3; // PLAYING or BUFFERING
+      }
+
+      function deckHasMedia(id) {
+        return !!(state[id].videoId || state[id].playlistId);
+      }
+
+      function playDeck(id) {
+        if (!players[id] || !ready[id] || !deckHasMedia(id)) {
+          if (!deckHasMedia(id)) toast("Load a video in the " + (id === "book" ? "audiobook" : "music") + " deck first.");
+          return;
+        }
+        markGesture();
+        intendedPlay[id] = true;
+        try { players[id].playVideo(); } catch (e) {}
+        updatePlayButtons();
+        updateMediaSession();
+        schedulePersist();
+      }
+
+      function pauseDeck(id) {
+        markGesture();
+        intendedPlay[id] = false;
+        if (players[id] && ready[id]) {
+          try { players[id].pauseVideo(); } catch (e) {}
+        }
+        updatePlayButtons();
+        updateMediaSession();
+        persist();
+      }
+
+      function toggleDeck(id) {
+        if (intendedPlay[id] || (players[id] && isPlayingState(safeState(id)))) pauseDeck(id);
+        else playDeck(id);
+      }
+
+      function safeState(id) {
+        try { return players[id] ? players[id].getPlayerState() : -1; } catch (e) { return -1; }
+      }
+
+      function skipDeck(id, delta) {
+        var p = players[id];
+        if (!p || !ready[id] || typeof p.getCurrentTime !== "function") return;
+        try {
+          var t = p.getCurrentTime() || 0;
+          var d = p.getDuration() || 0;
+          var next = Math.max(0, t + delta);
+          if (d > 0) next = Math.min(d, next);
+          p.seekTo(next, true);
+          state[id].position = next;
+          updateProgress(id);
+          schedulePersist();
+        } catch (e) {}
+      }
+
+      function loadIntoPlayer(id, parsed, url) {
+        $(id + "-error").textContent = "";
+        state[id].url = url;
+        state[id].videoId = parsed.videoId || null;
+        state[id].playlistId = parsed.playlistId || null;
+        var start = parsed.startSeconds || 0;
+        state[id].position = start;
+        intendedPlay[id] = false;
+        persist();
+
+        if (!players[id] || !ready[id]) {
+          toast("Player is still starting. Try Load again in a moment.");
+          return;
+        }
+        try {
+          if (parsed.playlistId && !parsed.videoId) {
+            players[id].cuePlaylist({ list: parsed.playlistId, listType: "playlist", index: 0, startSeconds: start });
+          } else if (parsed.playlistId && parsed.videoId) {
+            players[id].cueVideoById({ videoId: parsed.videoId, startSeconds: start });
+          } else {
+            players[id].cueVideoById({ videoId: parsed.videoId, startSeconds: start });
+          }
+          $(id + "-ph").style.display = "none";
+        } catch (e) {
+          $(id + "-error").textContent = "Could not load that link. Check the URL and try again.";
+        }
+        schedulePersist();
+      }
+
+      function restoreIntoPlayer(id) {
+        var s = state[id];
+        if (!s.videoId && !s.playlistId) return;
+        var start = s.position || 0;
+        try {
+          if (s.playlistId && !s.videoId) {
+            players[id].cuePlaylist({ list: s.playlistId, listType: "playlist", index: 0, startSeconds: start });
+          } else if (s.videoId) {
+            players[id].cueVideoById({ videoId: s.videoId, startSeconds: start });
+          }
+          $(id + "-ph").style.display = "none";
+        } catch (e) {}
+      }
+
+      function onPlayerReady(id) {
+        ready[id] = true;
+        applyVolumes();
+        if (id === "book" && players[id].setPlaybackRate) {
+          try { players[id].setPlaybackRate(state.book.rate || 1); } catch (e) {}
+        }
+        restoreIntoPlayer(id);
+        updatePlayButtons();
+      }
+
+      function errorMessage(code) {
+        if (code === 2) return "That looks like a bad video or playlist ID.";
+        if (code === 5) return "This video couldn’t play in HTML5. Try another link.";
+        if (code === 100) return "Video not found, or it was taken down.";
+        if (code === 101 || code === 150) return "The owner disabled embedding for this video. Try a different link.";
+        return "YouTube returned an error (" + code + "). Try another link.";
+      }
+
+      function onPlayerError(id, e) {
+        $(id + "-error").textContent = errorMessage(e && e.data);
+        intendedPlay[id] = false;
+        updatePlayButtons();
+      }
+
+      function onPlayerStateChange(id, e) {
+        var data = e && e.data;
+        if (data === 1) { // PLAYING
+          $(id + "-ph").style.display = "none";
+          $(id + "-error").textContent = "";
+          intendedPlay[id] = true;
+          captureTitle(id);
+          updatePlayButtons();
+          updateMediaSession();
+        } else if (data === 2) { // PAUSED
+          if (intendedPlay[id] && !userGesture) {
+            scheduleResume();
+          }
+          updatePlayButtons();
+          persist();
+          updateMediaSession();
+        } else if (data === 0) { // ENDED
+          if (id === "music" && state.music.loop) {
+            try {
+              players[id].seekTo(0, true);
+              players[id].playVideo();
+            } catch (err) {}
+            return;
+          }
+          intendedPlay[id] = false;
+          state[id].position = 0;
+          updatePlayButtons();
+          persist();
+          updateMediaSession();
+        }
+      }
+
+      function captureTitle(id) {
+        try {
+          var data = players[id].getVideoData && players[id].getVideoData();
+          if (data && data.title) {
+            $(id + "-title-text").textContent = data.title;
+            $(id + "-title-text").title = data.title;
+          }
+        } catch (e) {}
+      }
+
+      function updatePlayButtons() {
+        ["book", "music"].forEach(function (id) {
+          var playing = intendedPlay[id] || isPlayingState(safeState(id));
+          var btn = $(id + "-play");
+          var icon = $(id + "-play-icon");
+          btn.setAttribute("aria-label", playing ? (id === "book" ? "Pause audiobook" : "Pause music") : (id === "book" ? "Play audiobook" : "Play music"));
+          icon.innerHTML = playing ? ICONS.pause : ICONS.play;
+        });
+      }
+
+      function updateProgress(id) {
+        if (scrubbing[id]) return;
+        var p = players[id];
+        if (!p || !ready[id] || typeof p.getCurrentTime !== "function") return;
+        try {
+          var cur = p.getCurrentTime() || 0;
+          var dur = p.getDuration() || 0;
+          $(id + "-cur").textContent = formatTime(cur);
+          $(id + "-dur").textContent = formatTime(dur);
+          var seek = $(id + "-seek");
+          if (dur > 0) {
+            seek.value = Math.round((cur / dur) * 1000);
+          } else {
+            seek.value = 0;
+          }
+          setSeekFill(id);
+        } catch (e) {}
+      }
+
+      function resumeIfIntended() {
+        if (document.visibilityState === "hidden") return;
+        var now = Date.now();
+        if (now - lastResumeAt < 400) return;
+        lastResumeAt = now;
+        ["book", "music"].forEach(function (id) {
+          if (!intendedPlay[id] || !players[id] || !ready[id] || !deckHasMedia(id)) return;
+          var st = safeState(id);
+          if (st !== 1 && st !== 3 && st !== 0) {
+            try { players[id].playVideo(); } catch (e) {}
+          }
+        });
+        applyVolumes();
+        updateMediaSession();
+        reacquireWakeLock();
+      }
+
+      var resumeTimer = null;
+      function scheduleResume() {
+        clearTimeout(resumeTimer);
+        resumeTimer = setTimeout(resumeIfIntended, 350);
+      }
+
+      function updateMediaSession() {
+        if (!("mediaSession" in navigator)) return;
+        var bookTitle = $("book-title-text").textContent || "Audiobook";
+        var musicTitle = $("music-title-text").textContent || "Music";
+        var artId = state.book.videoId || state.music.videoId;
+        var artwork = artId ? [
+          { src: "https://i.ytimg.com/vi/" + artId + "/hqdefault.jpg", sizes: "480x360", type: "image/jpeg" },
+          { src: "./icon-512.png", sizes: "512x512", type: "image/png" }
+        ] : [{ src: "./icon-512.png", sizes: "512x512", type: "image/png" }];
+        try {
+          navigator.mediaSession.metadata = new MediaMetadata({
+            title: bookTitle,
+            artist: musicTitle && musicTitle !== "Music" ? "with " + musicTitle : "Dual Tube",
+            album: "Dual Tube",
+            artwork: artwork
+          });
+        } catch (e) {}
+        var any = intendedPlay.book || intendedPlay.music;
+        try { navigator.mediaSession.playbackState = any ? "playing" : "paused"; } catch (e) {}
+        try {
+          var p = players.book;
+          if (p && ready.book && p.getDuration) {
+            var dur = p.getDuration() || 0;
+            var pos = p.getCurrentTime() || 0;
+            if (dur > 0) {
+              navigator.mediaSession.setPositionState({
+                duration: dur,
+                playbackRate: state.book.rate || 1,
+                position: Math.min(pos, dur)
+              });
+            }
+          }
+        } catch (e) {}
+      }
+
+      function bindMediaSession() {
+        if (!("mediaSession" in navigator)) return;
+        var set = function (action, fn) {
+          try { navigator.mediaSession.setActionHandler(action, fn); } catch (e) {}
+        };
+        set("play", function () { playDeck("book"); playDeck("music"); });
+        set("pause", function () { pauseDeck("book"); pauseDeck("music"); });
+        set("stop", function () { pauseDeck("book"); pauseDeck("music"); });
+        set("seekbackward", function (d) { skipDeck("book", -(d && d.seekOffset) || -15); });
+        set("seekforward", function (d) { skipDeck("book", (d && d.seekOffset) || 15); });
+        set("previoustrack", function () { skipDeck("book", -30); });
+        set("nexttrack", function () { skipDeck("book", 30); });
+        set("seekto", function (d) {
+          if (!d || d.seekTime == null || !players.book) return;
+          try { players.book.seekTo(d.seekTime, true); } catch (e) {}
+        });
+      }
+
+      async function requestWakeLock() {
+        if (!state.keepAwake) return;
+        if (!("wakeLock" in navigator)) {
+          toast("This browser can’t keep the screen on. Leave the app open instead.");
+          return;
+        }
+        try {
+          wakeLock = await navigator.wakeLock.request("screen");
+          wakeLock.addEventListener("release", function () {
+            if (state.keepAwake && document.visibilityState === "visible") {
+              requestWakeLock();
+            }
+          });
+        } catch (e) {
+          // Denied or unsupported in this context
+        }
+      }
+
+      function releaseWakeLock() {
+        if (wakeLock) {
+          try { wakeLock.release(); } catch (e) {}
+          wakeLock = null;
+        }
+      }
+
+      function reacquireWakeLock() {
+        if (state.keepAwake && document.visibilityState === "visible") requestWakeLock();
+      }
+
+      function setCompact(on) {
+        state.compact = !!on;
+        document.documentElement.classList.toggle("compact", state.compact);
+        $("compactBtn").setAttribute("aria-pressed", String(state.compact));
+        schedulePersist();
+      }
+
+      function setKeepAwake(on) {
+        state.keepAwake = !!on;
+        $("wakeBtn").setAttribute("aria-pressed", String(state.keepAwake));
+        if (state.keepAwake) requestWakeLock();
+        else releaseWakeLock();
+        schedulePersist();
+      }
+
+      function applyChrome() {
+        $("book-url").value = state.book.url || "";
+        $("music-url").value = state.music.url || "";
+        $("book-vol").value = state.book.volume;
+        $("music-vol").value = state.music.volume;
+        $("book-speed").value = String(state.book.rate || 1);
+        $("balance").value = String(state.balance);
+        $("balance").style.setProperty("--pct", ((state.balance + 100) / 2) + "%");
+        $("music-loop").setAttribute("aria-pressed", String(!!state.music.loop));
+        $("book-mute").setAttribute("aria-pressed", String(!!state.book.muted));
+        $("music-mute").setAttribute("aria-pressed", String(!!state.music.muted));
+        $("book-mute").textContent = state.book.muted ? "Unmute" : "Mute";
+        $("music-mute").textContent = state.music.muted ? "Unmute" : "Mute";
+        setVolFill("book");
+        setVolFill("music");
+        setSeekFill("book");
+        setSeekFill("music");
+        setCompact(state.compact);
+        setKeepAwake(state.keepAwake);
+      }
+
+      function handleLoad(id, raw) {
+        var parsed = window.DualTubeParse.parseYouTubeInput(raw);
+        if (!parsed) {
+          $(id + "-error").textContent = "Couldn’t read that. Paste a YouTube, youtu.be, Shorts, Music, or playlist link — or an 11-character ID.";
+          return;
+        }
+        loadIntoPlayer(id, parsed, raw.trim());
+      }
+
+      function initPlayers() {
+        var commonVars = {
+          rel: 0,
+          modestbranding: 1,
+          playsinline: 1,
+          origin: location.origin,
+          enablejsapi: 1,
+          fs: 1,
+          autoplay: 0,
+          iv_load_policy: 3
+        };
+        ["book", "music"].forEach(function (id) {
+          players[id] = new YT.Player(id + "-player", {
+            width: "100%",
+            height: "100%",
+            playerVars: commonVars,
+            events: {
+              onReady: function () { onPlayerReady(id); },
+              onStateChange: function (e) { onPlayerStateChange(id, e); },
+              onError: function (e) { onPlayerError(id, e); }
+            }
+          });
+        });
+      }
+
+      window.onYouTubeIframeAPIReady = initPlayers;
+
+      function bindUI() {
+        document.querySelectorAll("form[data-load]").forEach(function (form) {
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            var id = form.getAttribute("data-load");
+            handleLoad(id, $(id + "-url").value);
+          });
+        });
+
+        $("book-play").addEventListener("click", function () { toggleDeck("book"); });
+        $("music-play").addEventListener("click", function () { toggleDeck("music"); });
+
+        document.querySelectorAll("[data-skip]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var parts = btn.getAttribute("data-skip").split(",");
+            skipDeck(parts[0], Number(parts[1]));
+          });
+        });
+
+        $("book-speed").addEventListener("change", function () {
+          state.book.rate = Number($("book-speed").value) || 1;
+          if (players.book && ready.book && players.book.setPlaybackRate) {
+            try { players.book.setPlaybackRate(state.book.rate); } catch (e) {}
+          }
+          schedulePersist();
+          updateMediaSession();
+        });
+
+        $("music-loop").addEventListener("click", function () {
+          state.music.loop = !state.music.loop;
+          $("music-loop").setAttribute("aria-pressed", String(state.music.loop));
+          schedulePersist();
+        });
+
+        ["book", "music"].forEach(function (id) {
+          var seek = $(id + "-seek");
+          seek.addEventListener("pointerdown", function () { scrubbing[id] = true; });
+          seek.addEventListener("pointerup", function () { scrubbing[id] = false; });
+          seek.addEventListener("input", function () {
+            setSeekFill(id);
+            var p = players[id];
+            if (!p || !ready[id] || !p.getDuration) return;
+            try {
+              var dur = p.getDuration() || 0;
+              var t = (Number(seek.value) / 1000) * dur;
+              $(id + "-cur").textContent = formatTime(t);
+            } catch (e) {}
+          });
+          seek.addEventListener("change", function () {
+            var p = players[id];
+            scrubbing[id] = false;
+            if (!p || !ready[id] || !p.getDuration) return;
+            try {
+              var dur = p.getDuration() || 0;
+              var t = (Number(seek.value) / 1000) * dur;
+              p.seekTo(t, true);
+              state[id].position = t;
+              schedulePersist();
+            } catch (e) {}
+          });
+
+          $(id + "-vol").addEventListener("input", function () {
+            state[id].volume = Number($(id + "-vol").value);
+            setVolFill(id);
+            applyVolumes();
+            schedulePersist();
+          });
+
+          $(id + "-mute").addEventListener("click", function () {
+            state[id].muted = !state[id].muted;
+            $(id + "-mute").setAttribute("aria-pressed", String(state[id].muted));
+            $(id + "-mute").textContent = state[id].muted ? "Unmute" : "Mute";
+            applyVolumes();
+            schedulePersist();
+          });
+        });
+
+        $("balance").addEventListener("input", function () {
+          state.balance = Number($("balance").value);
+          $("balance").style.setProperty("--pct", ((state.balance + 100) / 2) + "%");
+          applyVolumes();
+          schedulePersist();
+        });
+
+        $("playBoth").addEventListener("click", function () {
+          playDeck("book");
+          playDeck("music");
+        });
+        $("pauseBoth").addEventListener("click", function () {
+          pauseDeck("book");
+          pauseDeck("music");
+        });
+
+        $("compactBtn").addEventListener("click", function () { setCompact(!state.compact); });
+        $("wakeBtn").addEventListener("click", function () { setKeepAwake(!state.keepAwake); });
+        $("helpJump").addEventListener("click", function () {
+          var h = $("help");
+          h.open = true;
+          h.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+
+      function bindLifecycle() {
+        document.addEventListener("visibilitychange", function () {
+          persist();
+          if (document.visibilityState === "visible") {
+            setTimeout(resumeIfIntended, 250);
+          }
+        });
+        window.addEventListener("focus", function () { setTimeout(resumeIfIntended, 250); });
+        window.addEventListener("pageshow", function () { setTimeout(resumeIfIntended, 250); });
+        window.addEventListener("pagehide", persist);
+        window.addEventListener("beforeunload", persist);
+        document.addEventListener("freeze", persist);
+        if ("onresume" in document) {
+          document.addEventListener("resume", function () { setTimeout(resumeIfIntended, 250); });
+        }
+      }
+
+      loadState();
+      bindUI();
+      applyChrome();
+      bindMediaSession();
+      bindLifecycle();
+
+      setInterval(function () {
+        updateProgress("book");
+        updateProgress("music");
+        if (intendedPlay.book || intendedPlay.music) {
+          persist();
+          updateMediaSession();
+        }
+        if (document.visibilityState === "visible") {
+          // Catch pauses from a call that ended while the page stayed “visible”
+          if (intendedPlay.book || intendedPlay.music) resumeIfIntended();
+        }
+      }, 2000);
+
+      setInterval(function () {
+        updateProgress("book");
+        updateProgress("music");
+      }, 250);
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      }
+
+      var tag = document.createElement("script");
+      tag.src = "https://www.youtube.com/iframe_api";
+      document.head.appendChild(tag);
+    })();
+  </script>
+</body>
+</html>

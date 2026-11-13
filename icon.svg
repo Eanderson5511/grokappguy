@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Dual Tube">
+  <rect width="512" height="512" rx="112" fill="#090a0f"/>
+  <circle cx="200" cy="256" r="128" fill="#f0a14a"/>
+  <circle cx="312" cy="256" r="128" fill="#5ee0c5" fill-opacity="0.92"/>
+  <path d="M188 196v120l104-60-104-60z" fill="#090a0f"/>
+</svg>
