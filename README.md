@@ -43,3 +43,10 @@ This folder is a static site. Any free static host works, for example [GitHub Pa
 - `index.html` — app, styles, and player logic
 - `yt-parse.js` — YouTube URL / ID parser
 - `manifest.json` / `sw.js` / `icon.svg` / `icon-192.png` / `icon-512.png` — PWA shell
+
+## Search & queues (v1.1)
+- Type words in either player's box and press **Search** (paste a link and it says **Load**). Tap a result to play it there, or use **+ Queue**, **+ other queue**, **▶ other player**.
+- Web search uses free public Piped / Invidious servers (no API key). The Android app searches youtube.com directly.
+- **Up next** queue per player: auto-advances, reorder (↑ ↓), remove (✕), clear. Saved on the device.
+- **Saved lists**: save both queues under a name (e.g. "Road trip") and load later.
+- `node test-search.js "query"` checks every search source live.

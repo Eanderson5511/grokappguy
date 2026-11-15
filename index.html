@@ -209,6 +209,198 @@
     .deck.book .btn.load { background: var(--amber); color: #1a1208; }
     .deck.music .btn.load { background: var(--teal); color: #08211b; }
 
+
+    /* ---- Search ---- */
+    .url-row .field { position: relative; flex: 1; min-width: 0; display: flex; }
+    .url-row .field input { width: 100%; padding-left: 42px; padding-right: 40px; }
+    .url-row .field .lead {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      width: 18px; height: 18px; color: var(--muted); pointer-events: none;
+    }
+    .url-row .field .clear {
+      position: absolute; right: 6px; top: 50%; transform: translateY(-50%);
+      width: 32px; height: 32px; border: 0; border-radius: 10px; background: transparent;
+      color: var(--muted); font-size: 1.1rem; line-height: 1; display: none;
+    }
+    .url-row .field.has-text .clear { display: grid; place-items: center; }
+    .url-row .field .clear:hover { background: rgba(255,255,255,0.08); color: var(--ink); }
+    .btn.load { min-width: 92px; }
+    .btn.load .spin {
+      width: 16px; height: 16px; border-radius: 50%; display: none;
+      border: 2px solid currentColor; border-right-color: transparent;
+      animation: dt-spin .7s linear infinite; margin-right: 6px; vertical-align: -3px;
+    }
+    .btn.load.busy .spin { display: inline-block; }
+    @keyframes dt-spin { to { transform: rotate(360deg); } }
+
+    .results {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(6, 7, 11, 0.55);
+      overflow: hidden;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      max-height: min(440px, 62vh);
+      animation: dt-drop .28s cubic-bezier(.2,.8,.2,1);
+    }
+    .results[hidden] { display: none; }
+    @keyframes dt-drop { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+    .results-head {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 8px 8px 8px 14px; border-bottom: 1px solid var(--line);
+      font-size: 0.8rem; color: var(--muted);
+    }
+    .results-head .q { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; }
+    .results-head .q b { color: var(--ink); font-weight: 550; }
+    .results-close {
+      flex: none; border: 0; background: rgba(255,255,255,0.06); border-radius: 10px;
+      min-height: 34px; padding: 0 12px; font-size: 0.82rem;
+    }
+    .results-close:hover { background: rgba(255,255,255,0.12); }
+    .results-list {
+      overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+      padding: 6px; display: grid; gap: 2px; align-content: start;
+    }
+    .res {
+      display: grid; grid-template-columns: 1fr; align-items: center; gap: 0;
+      border-radius: 14px; transition: background .18s ease;
+    }
+    .res:hover, .res:focus-within { background: rgba(255,255,255,0.05); }
+    .res-main {
+      appearance: none; border: 0; background: transparent; text-align: left;
+      display: grid; grid-template-columns: 128px 1fr; gap: 12px; align-items: center;
+      padding: 6px; border-radius: 14px; min-width: 0; color: inherit;
+    }
+    .res-main:active { transform: scale(0.99); }
+    .res-thumb {
+      position: relative; width: 128px; aspect-ratio: 16 / 9; border-radius: 10px; overflow: hidden;
+      background: #15171f;
+    }
+    .res-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .res-dur {
+      position: absolute; right: 5px; bottom: 5px; padding: 1px 5px; border-radius: 5px;
+      background: rgba(0,0,0,0.78); font-size: 0.72rem; font-weight: 550; font-variant-numeric: tabular-nums;
+    }
+    .res-dur.live { background: #d93a3a; }
+    .res-text { min-width: 0; display: grid; gap: 3px; }
+    .res-title {
+      font-size: 0.9rem; font-weight: 550; line-height: 1.3;
+      display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+    }
+    .res-meta { font-size: 0.76rem; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .res-alt {
+      appearance: none; border: 1px solid var(--line); background: rgba(255,255,255,0.03);
+      border-radius: 10px; min-height: 36px; padding: 0 10px; margin-right: 6px;
+      font-size: 0.74rem; color: var(--muted); white-space: nowrap;
+    }
+    .res-alt:hover { color: var(--ink); background: rgba(255,255,255,0.08); }
+    .deck.book .res-alt:hover { border-color: rgba(94,224,197,.4); }
+    .deck.music .res-alt:hover { border-color: rgba(240,161,74,.4); }
+    .results-msg { padding: 18px 14px; color: var(--muted); font-size: 0.88rem; text-align: center; }
+    .results-msg strong { color: var(--ink); font-weight: 550; display: block; margin-bottom: 4px; }
+    .skel { display: grid; grid-template-columns: 128px 1fr; gap: 12px; padding: 6px; align-items: center; }
+    .skel i { display: block; border-radius: 8px; background: linear-gradient(90deg, rgba(255,255,255,.05), rgba(255,255,255,.11), rgba(255,255,255,.05)); background-size: 200% 100%; animation: dt-shim 1.1s ease-in-out infinite; }
+    .skel .t { aspect-ratio: 16/9; border-radius: 10px; }
+    .skel .l1 { height: 12px; width: 90%; margin-bottom: 8px; }
+    .skel .l2 { height: 10px; width: 55%; }
+    @keyframes dt-shim { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+    @media (max-width: 520px) {
+      .res-main { grid-template-columns: 104px 1fr; gap: 10px; }
+      .res-thumb { width: 104px; }
+      .skel { grid-template-columns: 104px 1fr; }
+      .res-alt { min-height: 32px; }
+      .btn.load { min-width: 0; }
+    }
+    html.compact .results { max-height: min(520px, 70vh); }
+
+
+    /* ---- Queue ---- */
+    .queue {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+    .queue-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 6px 6px 8px; }
+    .queue-toggle {
+      appearance: none; border: 0; background: transparent; display: inline-flex; align-items: center; gap: 8px;
+      min-height: 40px; padding: 0 8px; border-radius: 10px; font-weight: 550; font-size: 0.92rem;
+    }
+    .queue-toggle:hover { background: rgba(255,255,255,0.05); }
+    .queue-toggle .chev { transition: transform .2s ease; color: var(--muted); font-size: .8rem; }
+    .queue.open .queue-toggle .chev { transform: rotate(90deg); }
+    .q-count {
+      min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; display: inline-grid; place-items: center;
+      font-size: 0.74rem; background: rgba(255,255,255,0.08); color: var(--muted); font-variant-numeric: tabular-nums;
+    }
+    .deck.book .queue.has .q-count { background: var(--amber-soft); color: var(--amber); }
+    .deck.music .queue.has .q-count { background: var(--teal-soft); color: var(--teal); }
+    .queue-tools { display: flex; gap: 4px; }
+    .queue-tools .icon-btn { min-height: 38px; min-width: 40px; font-size: 0.8rem; }
+    .queue-body { display: none; border-top: 1px solid var(--line); }
+    .queue.open .queue-body { display: block; }
+    .queue-list { list-style: none; margin: 0; padding: 6px; display: grid; gap: 2px; max-height: 340px; overflow-y: auto; overscroll-behavior: contain; }
+    .q-item { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px; border-radius: 12px; }
+    .q-item:hover { background: rgba(255,255,255,0.04); }
+    .q-item.now { background: rgba(255,255,255,0.07); }
+    .deck.book .q-item.now { box-shadow: inset 3px 0 0 var(--amber); }
+    .deck.music .q-item.now { box-shadow: inset 3px 0 0 var(--teal); }
+    .q-play {
+      appearance: none; border: 0; background: transparent; color: inherit; text-align: left; min-width: 0;
+      display: grid; grid-template-columns: 22px 72px 1fr; gap: 10px; align-items: center; padding: 6px; border-radius: 12px;
+    }
+    .q-num { color: var(--muted); font-size: 0.78rem; text-align: center; font-variant-numeric: tabular-nums; }
+    .q-item.now .q-num { color: var(--ink); }
+    .q-thumb { width: 72px; aspect-ratio: 16/9; border-radius: 7px; overflow: hidden; background: #15171f; display: block; }
+    .q-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .q-text { min-width: 0; display: grid; gap: 2px; }
+    .q-title { font-size: 0.84rem; font-weight: 550; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .q-meta { font-size: 0.72rem; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .q-ctl { display: flex; gap: 2px; padding-right: 4px; }
+    .q-ctl button {
+      appearance: none; border: 0; background: transparent; color: var(--muted); width: 34px; height: 34px; border-radius: 9px; font-size: 0.95rem;
+    }
+    .q-ctl button:hover:not(:disabled) { background: rgba(255,255,255,0.08); color: var(--ink); }
+    .q-ctl button:disabled { opacity: .25; cursor: default; }
+    .q-empty { padding: 14px; color: var(--muted); font-size: 0.85rem; text-align: center; }
+    .queue-foot { display: flex; justify-content: flex-end; gap: 6px; padding: 0 8px 8px; }
+    .queue-foot .icon-btn { min-height: 34px; font-size: 0.78rem; color: var(--muted); }
+    @media (max-width: 520px) {
+      .q-play { grid-template-columns: 18px 60px 1fr; gap: 8px; }
+      .q-thumb { width: 60px; }
+      .q-ctl button { width: 30px; }
+    }
+
+    .btn.queue-add { display: none; padding: 0 12px; }
+    .url-row.is-link .btn.queue-add { display: inline-flex; align-items: center; }
+    .res-acts { display: flex; flex-wrap: wrap; gap: 4px; justify-content: flex-end; padding: 0 6px 6px; margin-top: -2px; }
+    .res-acts .res-alt { margin: 0; }
+    .res-alt.addq { color: var(--ink); }
+
+    /* ---- Saved lists ---- */
+    .lists {
+      margin-top: 20px; padding: 16px 18px; border: 1px solid var(--line); border-radius: 20px;
+      background: rgba(255,255,255,0.03); display: grid; gap: 12px;
+    }
+    .lists h2 { margin: 0; font-family: Fraunces, Georgia, serif; font-size: 1.2rem; font-weight: 650; letter-spacing: -0.02em; }
+    .lists p.sub { margin: -6px 0 0; color: var(--muted); font-size: 0.86rem; }
+    .lists-save { display: flex; gap: 8px; }
+    .lists-save input {
+      flex: 1; min-width: 0; min-height: var(--touch); border-radius: 14px; border: 1px solid var(--line);
+      background: rgba(0,0,0,0.35); padding: 0 14px; outline: none;
+    }
+    .lists-save input:focus { border-color: rgba(255,255,255,0.28); }
+    .saved-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+    .saved-list li {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;
+      padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.03); border: 1px solid var(--line);
+    }
+    .saved-name { font-weight: 550; }
+    .saved-meta { color: var(--muted); font-size: 0.78rem; }
+    .saved-acts { display: flex; gap: 6px; }
+    .saved-acts .icon-btn { min-height: 38px; font-size: 0.82rem; }
+    .lists .none { color: var(--muted); font-size: 0.86rem; }
+
     .stage-wrap { position: relative; }
     .stage {
       position: relative;
@@ -523,6 +715,7 @@
         <button class="chip" id="wakeBtn" type="button" aria-pressed="false" title="Request a screen wake lock so playback is less likely to pause">
           <span class="dot"></span> Keep screen on
         </button>
+        <button class="chip" type="button" id="listsJump">Lists</button>
         <button class="chip" type="button" id="helpJump">Help</button>
       </div>
     </header>
@@ -533,10 +726,19 @@
           <h2 class="deck-label" id="book-title">Audiobook</h2>
           <div class="now-playing" id="book-title-text"></div>
         </div>
-        <form class="url-row" data-load="book" action="#">
-          <input id="book-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a YouTube link or ID" aria-label="Audiobook YouTube URL">
-          <button class="btn load" type="submit">Load</button>
+        <form class="url-row" data-load="book" action="#" role="search">
+          <div class="field">
+            <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="book-url" type="text" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search YouTube or paste a link" aria-label="Audiobook: search YouTube or paste a link">
+            <button class="clear" type="button" data-clear="book" aria-label="Clear">×</button>
+          </div>
+          <button class="btn queue-add" id="book-addq" type="button" title="Add this link to the Audiobook queue">+ Queue</button>
+          <button class="btn load" id="book-go" type="submit"><span class="spin"></span><span class="lbl">Search</span></button>
         </form>
+        <div class="results" id="book-results" hidden>
+          <div class="results-head"><span class="q" id="book-results-q"></span><button class="results-close" type="button" data-close="book">Close</button></div>
+          <div class="results-list" id="book-results-list" role="list"></div>
+        </div>
         <div class="stage-wrap">
           <div class="stage" id="book-stage">
             <div id="book-player" class="yt-mount"></div>
@@ -575,6 +777,19 @@
             <button class="icon-btn mute-btn" id="book-mute" type="button" aria-pressed="false" aria-label="Mute audiobook">Mute</button>
           </div>
         </div>
+              <div class="queue" id="book-queue">
+          <div class="queue-head">
+            <button class="queue-toggle" type="button" data-qtoggle="book" aria-expanded="false" aria-controls="book-queue-body"><span class="chev">▶</span> Up next <span class="q-count" id="book-qcount">0</span></button>
+            <div class="queue-tools">
+              <button class="icon-btn" type="button" data-qprev="book" aria-label="Previous in Audiobook queue" title="Previous"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+              <button class="icon-btn" type="button" data-qnext="book" aria-label="Next in Audiobook queue" title="Next"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6h2v12h-2z"/></svg></button>
+            </div>
+          </div>
+          <div class="queue-body" id="book-queue-body">
+            <ol class="queue-list" id="book-qlist"></ol>
+            <div class="queue-foot"><button class="icon-btn" type="button" data-qclear="book">Clear queue</button></div>
+          </div>
+        </div>
       </section>
 
       <section class="deck music" data-deck="music" aria-labelledby="music-title">
@@ -582,10 +797,19 @@
           <h2 class="deck-label" id="music-title">Music</h2>
           <div class="now-playing" id="music-title-text"></div>
         </div>
-        <form class="url-row" data-load="music" action="#">
-          <input id="music-url" type="text" inputmode="url" autocomplete="off" spellcheck="false" placeholder="Paste a YouTube or YouTube Music link" aria-label="Music YouTube URL">
-          <button class="btn load" type="submit">Load</button>
+        <form class="url-row" data-load="music" action="#" role="search">
+          <div class="field">
+            <svg class="lead" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+            <input id="music-url" type="text" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Search music or paste a link" aria-label="Music: search YouTube or paste a link">
+            <button class="clear" type="button" data-clear="music" aria-label="Clear">×</button>
+          </div>
+          <button class="btn queue-add" id="music-addq" type="button" title="Add this link to the Music queue">+ Queue</button>
+          <button class="btn load" id="music-go" type="submit"><span class="spin"></span><span class="lbl">Search</span></button>
         </form>
+        <div class="results" id="music-results" hidden>
+          <div class="results-head"><span class="q" id="music-results-q"></span><button class="results-close" type="button" data-close="music">Close</button></div>
+          <div class="results-list" id="music-results-list" role="list"></div>
+        </div>
         <div class="stage-wrap">
           <div class="stage" id="music-stage">
             <div id="music-player" class="yt-mount"></div>
@@ -612,8 +836,31 @@
             <button class="icon-btn mute-btn" id="music-mute" type="button" aria-pressed="false" aria-label="Mute music">Mute</button>
           </div>
         </div>
+              <div class="queue" id="music-queue">
+          <div class="queue-head">
+            <button class="queue-toggle" type="button" data-qtoggle="music" aria-expanded="false" aria-controls="music-queue-body"><span class="chev">▶</span> Up next <span class="q-count" id="music-qcount">0</span></button>
+            <div class="queue-tools">
+              <button class="icon-btn" type="button" data-qprev="music" aria-label="Previous in Music queue" title="Previous"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+              <button class="icon-btn" type="button" data-qnext="music" aria-label="Next in Music queue" title="Next"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6h2v12h-2z"/></svg></button>
+            </div>
+          </div>
+          <div class="queue-body" id="music-queue-body">
+            <ol class="queue-list" id="music-qlist"></ol>
+            <div class="queue-foot"><button class="icon-btn" type="button" data-qclear="music">Clear queue</button></div>
+          </div>
+        </div>
       </section>
     </main>
+
+    <section class="lists" id="lists" aria-labelledby="lists-title">
+      <h2 id="lists-title">Saved lists</h2>
+      <p class="sub">Save both queues under a name (like “Road trip”) and load them again later. Stored on this device.</p>
+      <form class="lists-save" id="listSaveForm" action="#">
+        <input id="listName" type="text" maxlength="40" placeholder="Name, e.g. Road trip" aria-label="List name" autocomplete="off">
+        <button class="btn primary" type="submit">Save queues</button>
+      </form>
+      <ul class="saved-list" id="savedLists"></ul>
+    </section>
 
     <details class="help" id="help">
       <summary>How it works &amp; phone limits</summary>
@@ -624,6 +871,7 @@
           <li><strong>iPhone and iPad (Safari, and many in-app browsers):</strong> the system typically allows only one unmuted video at a time, and it usually ignores per-player volume. Use the device volume, and mute the deck you don’t need. The sliders are still here; they just may not take effect.</li>
           <li><strong>Phone calls, switching apps, and locking the screen:</strong> phones pause all browser audio during a call, and they usually pause it when the screen locks or you leave the app. That is an OS / browser limit. Dual Tube cannot reliably keep YouTube playing with the screen off or through a call. It does remember that you were playing and will try to resume both decks when you come back (call ends, screen on, app in front again).</li>
           <li><strong>Best chance on mobile:</strong> turn on <em>Keep screen on</em>, leave Dual Tube visible, or add it to your home screen (Install / Add to Home Screen). Lock-screen and headset controls are requested through the Media Session API when the browser allows them.</li>
+          <li><strong>Search:</strong> type what you want (like “Atomic Habits audiobook” or “rain sounds”) and press Search. Tap a result to play it in that deck, or use the “→” button to send it to the other deck. Search uses free public servers, so if it is ever busy, pasting a link still works.</li>
           <li>Paste a normal YouTube or YouTube Music link, a <em>youtu.be</em> short link, a Short, a playlist (<em>list=</em>), or just an 11-character video ID.</li>
           <li>Compact mode shrinks the pictures so you can focus on audio. The players stay on the page (they are not hidden with <code>display: none</code>), because YouTube may stop a fully hidden player.</li>
         </ul>
@@ -647,6 +895,7 @@
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <script src="./yt-parse.js"></script>
+  <script src="./yt-search.js"></script>
   <script>
     (function () {
       "use strict";
@@ -920,6 +1169,7 @@
             } catch (err) {}
             return;
           }
+          if (queueNext(id)) return; // auto-advance to the next queued video
           intendedPlay[id] = false;
           state[id].position = 0;
           updatePlayButtons();
@@ -1035,8 +1285,8 @@
         set("stop", function () { pauseDeck("book"); pauseDeck("music"); });
         set("seekbackward", function (d) { skipDeck("book", -(d && d.seekOffset) || -15); });
         set("seekforward", function (d) { skipDeck("book", (d && d.seekOffset) || 15); });
-        set("previoustrack", function () { skipDeck("book", -30); });
-        set("nexttrack", function () { skipDeck("book", 30); });
+        set("previoustrack", function () { if (!anyQueueStep(-1)) skipDeck("book", -30); });
+        set("nexttrack", function () { if (!anyQueueStep(1)) skipDeck("book", 30); });
         set("seekto", function (d) {
           if (!d || d.seekTime == null || !players.book) return;
           try { players.book.seekTo(d.seekTime, true); } catch (e) {}
@@ -1142,6 +1392,375 @@
         });
       }
 
+
+      // ---------- YouTube search ----------
+      var DECK_NAME = { book: "Audiobook", music: "Music" };
+      var searchSeq = { book: 0, music: 0 };
+      var lastResults = { book: [], music: [] };
+
+      function looksLikeLink(raw) {
+        var s = String(raw || "").trim();
+        if (!s) return false;
+        if (/^[A-Za-z0-9_-]{11}$/.test(s)) {
+          // A bare 11-character video ID — but not an ordinary word like "meditations".
+          return /[0-9_-]/.test(s) || /[A-Z]/.test(s.slice(1));
+        }
+        if (/\s/.test(s)) return false;
+        return !!window.DualTubeParse.parseYouTubeInput(s);
+      }
+
+      function syncGoLabel(id) {
+        var v = $(id + "-url").value;
+        $(id + "-go").querySelector(".lbl").textContent = looksLikeLink(v) ? "Load" : "Search";
+        $(id + "-url").closest("form").classList.toggle("is-link", looksLikeLink(v));
+        $(id + "-url").parentNode.classList.toggle("has-text", !!v);
+      }
+
+      function esc(s) {
+        return String(s == null ? "" : s).replace(/[&<>"']/g, function (c) {
+          return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
+      }
+
+      function closeResults(id) {
+        searchSeq[id]++;
+        $(id + "-results").hidden = true;
+        $(id + "-go").classList.remove("busy");
+      }
+
+      function showSkeleton(id, q) {
+        $(id + "-results-q").innerHTML = "Searching for <b>" + esc(q) + "</b>…";
+        var rows = "";
+        for (var i = 0; i < 4; i++) rows += '<div class="skel"><i class="t"></i><div><i class="l1"></i><i class="l2"></i></div></div>';
+        $(id + "-results-list").innerHTML = rows;
+        $(id + "-results").hidden = false;
+      }
+
+      function renderResults(id, q, res) {
+        var other = id === "book" ? "music" : "book";
+        lastResults[id] = res.items;
+        $(id + "-results-q").innerHTML = "<b>" + esc(q) + "</b> · " + res.items.length + " results";
+        $(id + "-results-q").title = "Results from " + res.source;
+        $(id + "-results-list").innerHTML = res.items.map(function (it, n) {
+          var meta = [it.channel, it.views, it.published].filter(Boolean).join(" · ");
+          var dur = it.live ? '<span class="res-dur live">LIVE</span>' : (it.duration ? '<span class="res-dur">' + esc(it.duration) + "</span>" : "");
+          return '<div class="res" role="listitem">' +
+            '<button class="res-main" type="button" data-pick="' + n + '" data-deck="' + id + '" title="Play in ' + DECK_NAME[id] + '">' +
+              '<span class="res-thumb"><img loading="lazy" decoding="async" alt="" src="' + esc(it.thumbnail) + '">' + dur + "</span>" +
+              '<span class="res-text"><span class="res-title">' + esc(it.title) + '</span><span class="res-meta">' + esc(meta) + "</span></span>" +
+            "</button>" +
+            '<div class="res-acts">' +
+              '<button class="res-alt addq" type="button" data-addq="' + n + '" data-deck="' + id + '" data-from="' + id + '">+ Queue</button>' +
+              '<button class="res-alt" type="button" data-addq="' + n + '" data-deck="' + other + '" data-from="' + id + '">+ ' + DECK_NAME[other] + ' queue</button>' +
+              '<button class="res-alt" type="button" data-pick="' + n + '" data-deck="' + other + '" data-from="' + id + '">▶ ' + DECK_NAME[other] + "</button>" +
+            "</div>" +
+          "</div>";
+        }).join("");
+        $(id + "-results-list").scrollTop = 0;
+      }
+
+      function renderSearchError(id, q) {
+        $(id + "-results-q").innerHTML = "<b>" + esc(q) + "</b>";
+        $(id + "-results-list").innerHTML = '<div class="results-msg"><strong>Search is busy right now.</strong>' +
+          "The free search servers didn’t answer. Try again in a moment — or paste a YouTube link, that always works.</div>";
+      }
+
+      function runSearch(id, q) {
+        var my = ++searchSeq[id];
+        $(id + "-error").textContent = "";
+        $(id + "-go").classList.add("busy");
+        showSkeleton(id, q);
+        window.DualTubeSearch.search(q).then(function (res) {
+          if (my !== searchSeq[id]) return;
+          $(id + "-go").classList.remove("busy");
+          if (!res.items.length) throw new Error("none");
+          renderResults(id, q, res);
+        }).catch(function () {
+          if (my !== searchSeq[id]) return;
+          $(id + "-go").classList.remove("busy");
+          renderSearchError(id, q);
+        });
+      }
+
+      function pickResult(fromId, toId, n) {
+        var it = lastResults[fromId][n];
+        if (!it) return;
+        if (!players[toId] || !ready[toId]) { toast("Player is still starting. Try again in a moment."); return; }
+        var url = "https://www.youtube.com/watch?v=" + it.videoId;
+        loadIntoPlayer(toId, { videoId: it.videoId, playlistId: null, startSeconds: 0 }, url);
+        $(toId + "-title-text").textContent = it.title;
+        $(toId + "-title-text").title = it.title;
+        if (toId === fromId) closeResults(fromId);
+        playDeck(toId);
+        toast("▶ " + DECK_NAME[toId] + ": " + (it.title.length > 60 ? it.title.slice(0, 57) + "…" : it.title));
+      }
+
+      function bindSearch() {
+        ["book", "music"].forEach(function (id) {
+          var input = $(id + "-url");
+          input.addEventListener("input", function () { syncGoLabel(id); });
+          input.addEventListener("keydown", function (e) { if (e.key === "Escape") closeResults(id); });
+          syncGoLabel(id);
+        });
+        document.querySelectorAll("[data-clear]").forEach(function (b) {
+          b.addEventListener("click", function () {
+            var id = b.getAttribute("data-clear");
+            $(id + "-url").value = "";
+            syncGoLabel(id);
+            closeResults(id);
+            $(id + "-url").focus();
+          });
+        });
+        document.querySelectorAll("[data-close]").forEach(function (b) {
+          b.addEventListener("click", function () { closeResults(b.getAttribute("data-close")); });
+        });
+        document.addEventListener("click", function (e) {
+          var b = e.target.closest && e.target.closest("[data-pick]");
+          if (!b) return;
+          var to = b.getAttribute("data-deck");
+          var from = b.getAttribute("data-from") || to;
+          pickResult(from, to, Number(b.getAttribute("data-pick")));
+        });
+      }
+
+
+      // ---------- Queues & saved lists ----------
+      var QUEUE_KEY = "dual-tube-queue-v1";
+      var LISTS_KEY = "dual-tube-lists-v1";
+      var queue = { book: { items: [], pos: -1, open: false }, music: { items: [], pos: -1, open: false } };
+      var savedLists = {};
+
+      function loadQueues() {
+        try {
+          var q = JSON.parse(localStorage.getItem(QUEUE_KEY) || "null");
+          ["book", "music"].forEach(function (id) {
+            if (q && q[id] && Array.isArray(q[id].items)) {
+              queue[id].items = q[id].items.filter(function (x) { return x && (x.videoId || x.playlistId); });
+              var sp = Number(q[id].pos); queue[id].pos = Math.min(isFinite(sp) ? sp : -1, queue[id].items.length - 1);
+              queue[id].open = !!q[id].open;
+            }
+          });
+        } catch (e) {}
+        try { savedLists = JSON.parse(localStorage.getItem(LISTS_KEY) || "{}") || {}; } catch (e) { savedLists = {}; }
+      }
+      function saveQueues() {
+        try { localStorage.setItem(QUEUE_KEY, JSON.stringify(queue)); } catch (e) { toast("Couldn’t save the queue (storage full?)"); }
+        reportQueue();
+      }
+      function saveLists() {
+        try { localStorage.setItem(LISTS_KEY, JSON.stringify(savedLists)); } catch (e) { toast("Couldn’t save the list (storage full?)"); }
+      }
+      function reportQueue() {
+        if (window.DualTubeNative && window.DualTubeNative.onQueue) {
+          try { window.DualTubeNative.onQueue(queue.book.items.length > 0 || queue.music.items.length > 0); } catch (e) {}
+        }
+      }
+
+      function itemFromResult(it) {
+        return { videoId: it.videoId, playlistId: null, title: it.title, channel: it.channel || "", duration: it.live ? "LIVE" : (it.duration || "") };
+      }
+
+      function renderQueue(id) {
+        var q = queue[id];
+        $(id + "-qcount").textContent = q.items.length;
+        var box = $(id + "-queue");
+        box.classList.toggle("has", q.items.length > 0);
+        box.classList.toggle("open", !!q.open);
+        box.querySelector("[data-qtoggle]").setAttribute("aria-expanded", q.open ? "true" : "false");
+        if (!q.items.length) {
+          $(id + "-qlist").innerHTML = '<li class="q-empty">Nothing queued yet. Search, then tap <b>+ Queue</b> on a result — or paste a link and tap <b>+ Queue</b>. Videos play in order, one after another.</li>';
+          return;
+        }
+        var last = q.items.length - 1;
+        $(id + "-qlist").innerHTML = q.items.map(function (it, n) {
+          var thumb = it.videoId ? '<img loading="lazy" alt="" src="https://i.ytimg.com/vi/' + esc(it.videoId) + '/default.jpg">' : "";
+          var meta = [it.channel, it.duration, it.playlistId && !it.videoId ? "Playlist" : ""].filter(Boolean).join(" · ");
+          return '<li class="q-item' + (n === q.pos ? " now" : "") + '">' +
+            '<button class="q-play" type="button" data-qplay="' + n + '" data-deck="' + id + '" title="Play now">' +
+              '<span class="q-num">' + (n === q.pos ? "▶" : n + 1) + "</span>" +
+              '<span class="q-thumb">' + thumb + "</span>" +
+              '<span class="q-text"><span class="q-title">' + esc(it.title || "YouTube video") + '</span><span class="q-meta">' + esc(meta) + "</span></span>" +
+            "</button>" +
+            '<span class="q-ctl">' +
+              '<button type="button" data-qmove="-1" data-n="' + n + '" data-deck="' + id + '" aria-label="Move up"' + (n === 0 ? " disabled" : "") + ">↑</button>" +
+              '<button type="button" data-qmove="1" data-n="' + n + '" data-deck="' + id + '" aria-label="Move down"' + (n === last ? " disabled" : "") + ">↓</button>" +
+              '<button type="button" data-qdel="' + n + '" data-deck="' + id + '" aria-label="Remove">✕</button>' +
+            "</span></li>";
+        }).join("");
+      }
+      function renderAllQueues() { renderQueue("book"); renderQueue("music"); }
+
+      function playQueueAt(id, n, autoplay) {
+        var q = queue[id], it = q.items[n];
+        if (!it) return false;
+        if (!players[id] || !ready[id]) { toast("Player is still starting. Try again in a moment."); return false; }
+        q.pos = n;
+        var url = it.videoId ? "https://www.youtube.com/watch?v=" + it.videoId + (it.playlistId ? "&list=" + it.playlistId : "")
+                             : "https://www.youtube.com/playlist?list=" + it.playlistId;
+        loadIntoPlayer(id, { videoId: it.videoId || null, playlistId: it.playlistId || null, startSeconds: 0 }, url);
+        if (it.title) { $(id + "-title-text").textContent = it.title; $(id + "-title-text").title = it.title; }
+        if (autoplay) {
+          intendedPlay[id] = true;
+          try {
+            if (it.videoId) players[id].loadVideoById({ videoId: it.videoId, startSeconds: 0 });
+            else players[id].loadPlaylist({ list: it.playlistId, listType: "playlist", index: 0 });
+          } catch (e) {}
+          playDeck(id);
+        }
+        saveQueues();
+        renderQueue(id);
+        return true;
+      }
+
+      function queueAdd(id, item) {
+        var q = queue[id];
+        q.items.push(item);
+        var n = q.items.length - 1;
+        saveQueues();
+        // An empty deck gets the first queued video right away (ready to play).
+        if (!deckHasMedia(id) && players[id] && ready[id]) playQueueAt(id, n, false);
+        renderQueue(id);
+        toast("Added to " + DECK_NAME[id] + " queue (" + q.items.length + ")");
+      }
+
+      function queueNext(id) {
+        var q = queue[id];
+        if (q.pos + 1 < q.items.length) return playQueueAt(id, q.pos + 1, true);
+        return false;
+      }
+      function queuePrev(id) {
+        var q = queue[id];
+        var t = 0;
+        try { t = players[id].getCurrentTime() || 0; } catch (e) {}
+        if (q.pos > 0 && t < 5) return playQueueAt(id, q.pos - 1, true);
+        if (q.pos >= 0 || deckHasMedia(id)) {
+          try { players[id].seekTo(0, true); } catch (e) {}
+          return true;
+        }
+        return false;
+      }
+      // Notification / headset next & prev: music queue first, then the audiobook queue.
+      function anyQueueStep(dir) {
+        var order = ["music", "book"];
+        for (var i = 0; i < order.length; i++) {
+          var id = order[i];
+          if (!queue[id].items.length) continue;
+          return dir > 0 ? queueNext(id) : queuePrev(id);
+        }
+        return false;
+      }
+
+      function queueMove(id, n, d) {
+        var q = queue[id], m = n + d;
+        if (m < 0 || m >= q.items.length) return;
+        var tmp = q.items[n]; q.items[n] = q.items[m]; q.items[m] = tmp;
+        if (q.pos === n) q.pos = m; else if (q.pos === m) q.pos = n;
+        saveQueues(); renderQueue(id);
+      }
+      function queueRemove(id, n) {
+        var q = queue[id];
+        q.items.splice(n, 1);
+        if (n < q.pos) q.pos--;
+        else if (n === q.pos) q.pos = n - 1; // next still plays the item that came after it
+        saveQueues(); renderQueue(id);
+      }
+      function queueClear(id) {
+        if (!queue[id].items.length) return;
+        if (!confirm("Clear the " + DECK_NAME[id] + " queue?")) return;
+        queue[id].items = []; queue[id].pos = -1;
+        saveQueues(); renderQueue(id);
+      }
+
+      function addLinkToQueue(id) {
+        var raw = $(id + "-url").value.trim();
+        var parsed = window.DualTubeParse.parseYouTubeInput(raw);
+        if (!parsed) { $(id + "-error").textContent = "Paste a YouTube link to add it to the queue."; return; }
+        var item = { videoId: parsed.videoId || null, playlistId: parsed.playlistId || null,
+                     title: parsed.videoId ? "YouTube video" : "YouTube playlist", channel: "", duration: "" };
+        queueAdd(id, item);
+        $(id + "-url").value = ""; syncGoLabel(id);
+        // Fetch the real title (free oEmbed, no key).
+        var oe = "https://www.youtube.com/oembed?format=json&url=" + encodeURIComponent(parsed.videoId ? "https://www.youtube.com/watch?v=" + parsed.videoId : "https://www.youtube.com/playlist?list=" + parsed.playlistId);
+        fetch(oe).then(function (r) { return r.ok ? r.json() : null; }).then(function (j) {
+          if (!j || !j.title) return;
+          item.title = j.title; item.channel = j.author_name || "";
+          saveQueues(); renderQueue(id);
+        }).catch(function () {});
+      }
+
+      function renderSavedLists() {
+        var names = Object.keys(savedLists).sort(function (a, b) { return (savedLists[b].saved || 0) - (savedLists[a].saved || 0); });
+        if (!names.length) { $("savedLists").innerHTML = '<li class="none" style="border:0;background:none;padding:0">No saved lists yet.</li>'; return; }
+        $("savedLists").innerHTML = names.map(function (nm) {
+          var L = savedLists[nm];
+          return "<li><div><div class=\"saved-name\">" + esc(nm) + '</div><div class="saved-meta">' +
+            (L.book || []).length + " audiobook · " + (L.music || []).length + " music</div></div>" +
+            '<div class="saved-acts"><button class="icon-btn" type="button" data-lload="' + esc(nm) + '">Load</button>' +
+            '<button class="icon-btn" type="button" data-ldel="' + esc(nm) + '">Delete</button></div></li>';
+        }).join("");
+      }
+      function saveNamedList(name) {
+        name = String(name || "").trim().slice(0, 40);
+        if (!name) { $("listName").focus(); return; }
+        if (!queue.book.items.length && !queue.music.items.length) { toast("Both queues are empty — add some videos first."); return; }
+        if (savedLists[name] && !confirm("Replace the saved list “" + name + "”?")) return;
+        savedLists[name] = { book: queue.book.items.slice(), music: queue.music.items.slice(), saved: Date.now() };
+        saveLists(); renderSavedLists();
+        $("listName").value = "";
+        toast("Saved “" + name + "”");
+      }
+      function loadNamedList(name) {
+        var L = savedLists[name];
+        if (!L) return;
+        ["book", "music"].forEach(function (id) {
+          queue[id].items = (L[id] || []).slice();
+          queue[id].pos = -1;
+          queue[id].open = queue[id].items.length > 0;
+          var playing = intendedPlay[id] || isPlayingState(safeState(id));
+          if (queue[id].items.length && !playing) playQueueAt(id, 0, false);
+        });
+        saveQueues(); renderAllQueues();
+        toast("Loaded “" + name + "” — press play");
+      }
+
+      function bindQueue() {
+        ["book", "music"].forEach(function (id) {
+          $(id + "-addq").addEventListener("click", function () { addLinkToQueue(id); });
+        });
+        $("listSaveForm").addEventListener("submit", function (e) { e.preventDefault(); saveNamedList($("listName").value); });
+        $("listsJump").addEventListener("click", function () { $("lists").scrollIntoView({ behavior: "smooth", block: "start" }); });
+        document.addEventListener("click", function (e) {
+          var t = e.target.closest && e.target.closest("button");
+          if (!t) return;
+          var id = t.getAttribute("data-deck");
+          if (t.hasAttribute("data-addq")) {
+            var it = lastResults[t.getAttribute("data-from")][Number(t.getAttribute("data-addq"))];
+            if (it) queueAdd(id, itemFromResult(it));
+          } else if (t.hasAttribute("data-qplay")) {
+            playQueueAt(id, Number(t.getAttribute("data-qplay")), true);
+          } else if (t.hasAttribute("data-qmove")) {
+            queueMove(id, Number(t.getAttribute("data-n")), Number(t.getAttribute("data-qmove")));
+          } else if (t.hasAttribute("data-qdel")) {
+            queueRemove(id, Number(t.getAttribute("data-qdel")));
+          } else if (t.hasAttribute("data-qtoggle")) {
+            var d = t.getAttribute("data-qtoggle"); queue[d].open = !queue[d].open; saveQueues(); renderQueue(d);
+          } else if (t.hasAttribute("data-qnext")) {
+            var nd = t.getAttribute("data-qnext"); if (!queueNext(nd)) toast("End of the " + DECK_NAME[nd] + " queue");
+          } else if (t.hasAttribute("data-qprev")) {
+            var pd = t.getAttribute("data-qprev"); if (!queuePrev(pd)) toast("Nothing before this one");
+          } else if (t.hasAttribute("data-qclear")) {
+            queueClear(t.getAttribute("data-qclear"));
+          } else if (t.hasAttribute("data-lload")) {
+            loadNamedList(t.getAttribute("data-lload"));
+          } else if (t.hasAttribute("data-ldel")) {
+            var nm = t.getAttribute("data-ldel");
+            if (confirm("Delete the saved list “" + nm + "”?")) { delete savedLists[nm]; saveLists(); renderSavedLists(); }
+          }
+        });
+        window.DualTubeQueue = { next: function (id) { return id ? queueNext(id) : anyQueueStep(1); },
+                                 prev: function (id) { return id ? queuePrev(id) : anyQueueStep(-1); } };
+      }
+
       window.onYouTubeIframeAPIReady = initPlayers;
 
       function bindUI() {
@@ -1149,7 +1768,10 @@
           form.addEventListener("submit", function (e) {
             e.preventDefault();
             var id = form.getAttribute("data-load");
-            handleLoad(id, $(id + "-url").value);
+            var raw = $(id + "-url").value.trim();
+            if (!raw) { $(id + "-url").focus(); return; }
+            if (looksLikeLink(raw)) { closeResults(id); handleLoad(id, raw); }
+            else { if (document.activeElement && document.activeElement.blur && window.matchMedia("(max-width: 820px)").matches) document.activeElement.blur(); runSearch(id, raw); }
           });
         });
 
@@ -1266,6 +1888,12 @@
       loadState();
       bindUI();
       applyChrome();
+      bindSearch();
+      loadQueues();
+      bindQueue();
+      renderAllQueues();
+      renderSavedLists();
+      reportQueue();
       bindMediaSession();
       bindLifecycle();
 
